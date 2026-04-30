@@ -747,13 +747,47 @@ function setupToggle(headerId, bodyId, chevronId) {
   const body    = document.getElementById(bodyId);
   if (!header || !body) return;
   header.addEventListener('click', () => {
-    const expanded = header.getAttribute('aria-expanded') === 'true';
-    header.setAttribute('aria-expanded', String(!expanded));
-    body.classList.toggle('collapsed', expanded);
+    const isExpanding = header.getAttribute('aria-expanded') !== 'true';
+    header.setAttribute('aria-expanded', String(isExpanding));
+    body.classList.toggle('collapsed', !isExpanding);
   });
 }
 setupToggle('headerA', 'bodyA', 'chevronA');
 setupToggle('headerB', 'bodyB', 'chevronB');
+
+// ─── Mobile fullscreen inputs ─────────────────────────────────────────────────
+function openMobilePanel(set) {
+  document.body.classList.add('mobile-panel-open');
+  const title = document.getElementById('mobilePanelTitle');
+  
+  if (set === 'A') {
+    title.textContent = t('set_a') + ' Inputs';
+    document.getElementById('headerA').setAttribute('aria-expanded', 'true');
+    document.getElementById('bodyA').classList.remove('collapsed');
+    
+    // Collapse B
+    document.getElementById('headerB').setAttribute('aria-expanded', 'false');
+    document.getElementById('bodyB').classList.add('collapsed');
+  } else {
+    title.textContent = t('set_b') + ' Inputs';
+    document.getElementById('headerB').setAttribute('aria-expanded', 'true');
+    document.getElementById('bodyB').classList.remove('collapsed');
+    
+    // Collapse A
+    document.getElementById('headerA').setAttribute('aria-expanded', 'false');
+    document.getElementById('bodyA').classList.add('collapsed');
+  }
+}
+
+const btnMobileSetA = document.getElementById('btnMobileSetA');
+const btnMobileSetB = document.getElementById('btnMobileSetB');
+const btnMobileClose = document.getElementById('btnMobileClose');
+
+if (btnMobileSetA) btnMobileSetA.addEventListener('click', () => openMobilePanel('A'));
+if (btnMobileSetB) btnMobileSetB.addEventListener('click', () => openMobilePanel('B'));
+if (btnMobileClose) btnMobileClose.addEventListener('click', () => {
+  document.body.classList.remove('mobile-panel-open');
+});
 
 // ─── Visibility toggles ───────────────────────────────────────────────────────
 function setupVisToggle(btnId, cardId, key) {
@@ -803,7 +837,11 @@ function initTooltips() {
       tooltipEl.style.display = 'flex';
 
       const rect = el.getBoundingClientRect();
-      tooltipEl.style.left = (rect.left + rect.width / 2 - 120) + 'px';
+      let leftPos = rect.left + rect.width / 2 - 120;
+      if (leftPos < 10) leftPos = 10;
+      if (leftPos + 240 > window.innerWidth - 10) leftPos = window.innerWidth - 250;
+
+      tooltipEl.style.left = leftPos + 'px';
       tooltipEl.style.top = (rect.top - tooltipEl.offsetHeight - 10) + 'px';
     });
 
