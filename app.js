@@ -310,7 +310,7 @@ function computeGeometry(p) {
     if (mag > 0) kneeAngleDeg = Math.acos(Math.min(1, Math.max(-1, dot / mag))) / DEG;
   }
 
-  return { bb, pedal, saddleRef, nose, back, ischial, hip, ankle, heel, toe, ball, knee, warning, kneeAngleDeg };
+  return { bb, pedal, saddleRef, nose, back, ischial, hip, ankle, heel, toe, ball, knee, warning, kneeAngleDeg, heelRad };
 }
 
 // ─── Canvas & Pan/Zoom state ─────────────────────────────────────────────────
@@ -445,14 +445,13 @@ function drawSet(geo, color, label) {
   const cPedal = C(geo.pedal);
   drawLine(cBB.x, cBB.y, cPedal.x, cPedal.y, color, 3);
 
-  // Pedal platform (small rect perpendicular to crank)
+  // Pedal platform (matches heel angle)
   {
-    const crankAngle = Math.atan2(cBB.y - cPedal.y, cBB.x - cPedal.x);
-    const perpAngle  = crankAngle + Math.PI / 2;
+    const canvasAngle = -geo.heelRad;
     const hw = 14; // half-width in px
     ctx.beginPath();
-    ctx.moveTo(cPedal.x + hw * Math.cos(perpAngle), cPedal.y + hw * Math.sin(perpAngle));
-    ctx.lineTo(cPedal.x - hw * Math.cos(perpAngle), cPedal.y - hw * Math.sin(perpAngle));
+    ctx.moveTo(cPedal.x + hw * Math.cos(canvasAngle), cPedal.y + hw * Math.sin(canvasAngle));
+    ctx.lineTo(cPedal.x - hw * Math.cos(canvasAngle), cPedal.y - hw * Math.sin(canvasAngle));
     ctx.strokeStyle = color;
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
