@@ -447,7 +447,7 @@ function drawSet(geo, color, label) {
 
   // Pedal platform (matches heel angle)
   {
-    const canvasAngle = -geo.heelRad;
+    const canvasAngle = geo.heelRad;
     const hw = 14; // half-width in px
     ctx.beginPath();
     ctx.moveTo(cPedal.x + hw * Math.cos(canvasAngle), cPedal.y + hw * Math.sin(canvasAngle));
