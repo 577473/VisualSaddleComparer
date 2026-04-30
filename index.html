@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saddle Position Comparer | Bike Fit Tool</title>
+  <meta name="description" content="Visually compare bicycle saddle positions with skeletal leg simulation. Analyze extension, setback and leg kinematics side by side." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="8" cy="24" r="6" stroke="#4FC3F7" stroke-width="2"/>
+            <circle cx="24" cy="24" r="6" stroke="#4FC3F7" stroke-width="2"/>
+            <line x1="8" y1="24" x2="20" y2="8" stroke="#4FC3F7" stroke-width="2"/>
+            <line x1="20" y1="8" x2="24" y2="24" stroke="#4FC3F7" stroke-width="2"/>
+            <line x1="14" y1="16" x2="24" y2="18" stroke="#FFB74D" stroke-width="2" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title" data-i18n="app_title">Saddle Position Comparer</h1>
+          <p class="header-sub" data-i18n="app_subtitle">Bike fit visualizer with skeletal leg simulation</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <select id="langSelector" class="lang-selector">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="layout">
+
+      <!-- INPUT PANEL -->
+      <aside class="input-panel" id="inputPanel">
+
+        <!-- SET A -->
+        <div class="set-card set-a" id="setCardA">
+          <div class="set-header" id="headerA" role="button" aria-expanded="true" title="Toggle Set A">
+            <span class="set-dot dot-a"></span>
+            <span class="set-label" data-i18n="set_a">Set A</span>
+            <input type="text" id="labelA" class="set-name-input" value="Position A" data-i18n-val="pos_a" onclick="event.stopPropagation()" />
+            <button class="vis-toggle" id="visToggleA" title="Toggle Set A visibility" onclick="event.stopPropagation()" aria-label="Hide Set A">
+              <!-- eye-open -->
+              <svg class="eye-icon eye-open" viewBox="0 0 20 20" fill="none">
+                <path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+              <!-- eye-closed -->
+              <svg class="eye-icon eye-closed" viewBox="0 0 20 20" fill="none">
+                <path d="M3 3l14 14M8.5 8.6A2.5 2.5 0 0 0 12.4 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M6.1 6.2C3.8 7.4 2 10 2 10s3 5 8 5c1.4 0 2.6-.4 3.7-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M10.5 5.1C10.3 5 10.2 5 10 5c-5 0-8 5-8 5s.7 1.1 2 2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <svg class="chevron" id="chevronA" viewBox="0 0 16 16" fill="none"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="set-body" id="bodyA">
+          <div class="set-body-inner">
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_saddle">Saddle Geometry</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_saddle_length">Saddle Length</span> <em>mm</em></span>
+              <input type="number" id="a_saddleLength" value="260" min="50" max="400" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_ref_nose">Ref from Nose</span> <em>mm</em></span>
+              <input type="number" id="a_refFromNose" value="70" min="10" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_ischial_back">Ischial Ref from Back</span> <em>mm</em></span>
+              <input type="number" id="a_ischialFromBack" value="70" min="0" max="200" />
+            </label>
+          </div>
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_position">Position</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_extension">Extension</span> <em>mm</em></span>
+              <input type="number" id="a_extension" value="670" min="400" max="900" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_setback">Setback</span> <em>mm</em></span>
+              <input type="number" id="a_setback" value="160" min="0" max="300" />
+            </label>
+          </div>
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_rider">Rider &amp; Crank</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_femur">Femur Length</span> <em>mm</em></span>
+              <input type="number" id="a_femur" value="400" min="300" max="600" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_tibia">Tibia Length</span> <em>mm</em></span>
+              <input type="number" id="a_tibia" value="440" min="300" max="600" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_crank">Crank Length</span> <em>mm</em></span>
+              <input type="number" id="a_crank" value="170" min="100" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_foot_length">Foot Length</span> <em>mm</em></span>
+              <input type="number" id="a_footLength" value="275" min="150" max="350" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_contact_tip">Pedal Contact from Tip</span> <em>mm</em></span>
+              <input type="number" id="a_contactFromTip" value="75" min="10" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_heel_angle">Heel Lift Angle</span> <em>°</em></span>
+              <input type="number" id="a_heelAngle" value="20" min="-20" max="45" />
+            </label>
+          </div>
+          </div><!-- /set-body-inner A -->
+          </div><!-- /set-body A -->
+        </div><!-- /set-card A -->
+
+
+        <!-- SET B -->
+        <div class="set-card set-b" id="setCardB">
+          <div class="set-header" id="headerB" role="button" aria-expanded="true" title="Toggle Set B">
+            <span class="set-dot dot-b"></span>
+            <span class="set-label" data-i18n="set_b">Set B</span>
+            <input type="text" id="labelB" class="set-name-input" value="Position B" data-i18n-val="pos_b" onclick="event.stopPropagation()" />
+            <button class="vis-toggle" id="visToggleB" title="Toggle Set B visibility" onclick="event.stopPropagation()" aria-label="Hide Set B">
+              <svg class="eye-icon eye-open" viewBox="0 0 20 20" fill="none">
+                <path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+              <svg class="eye-icon eye-closed" viewBox="0 0 20 20" fill="none">
+                <path d="M3 3l14 14M8.5 8.6A2.5 2.5 0 0 0 12.4 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M6.1 6.2C3.8 7.4 2 10 2 10s3 5 8 5c1.4 0 2.6-.4 3.7-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M10.5 5.1C10.3 5 10.2 5 10 5c-5 0-8 5-8 5s.7 1.1 2 2.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <svg class="chevron" id="chevronB" viewBox="0 0 16 16" fill="none"><polyline points="4,6 8,10 12,6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="set-body" id="bodyB">
+          <div class="set-body-inner">
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_saddle">Saddle Geometry</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_saddle_length">Saddle Length</span> <em>mm</em></span>
+              <input type="number" id="b_saddleLength" value="260" min="50" max="400" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_ref_nose">Ref from Nose</span> <em>mm</em></span>
+              <input type="number" id="b_refFromNose" value="70" min="10" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_ischial_back">Ischial Ref from Back</span> <em>mm</em></span>
+              <input type="number" id="b_ischialFromBack" value="70" min="0" max="200" />
+            </label>
+          </div>
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_position">Position</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_extension">Extension</span> <em>mm</em></span>
+              <input type="number" id="b_extension" value="670" min="400" max="900" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_setback">Setback</span> <em>mm</em></span>
+              <input type="number" id="b_setback" value="140" min="0" max="300" />
+            </label>
+          </div>
+
+          <div class="input-group">
+            <div class="group-title" data-i18n="group_rider">Rider &amp; Crank</div>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_femur">Femur Length</span> <em>mm</em></span>
+              <input type="number" id="b_femur" value="400" min="300" max="600" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_tibia">Tibia Length</span> <em>mm</em></span>
+              <input type="number" id="b_tibia" value="440" min="300" max="600" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_crank">Crank Length</span> <em>mm</em></span>
+              <input type="number" id="b_crank" value="170" min="100" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_foot_length">Foot Length</span> <em>mm</em></span>
+              <input type="number" id="b_footLength" value="275" min="150" max="350" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_contact_tip">Pedal Contact from Tip</span> <em>mm</em></span>
+              <input type="number" id="b_contactFromTip" value="75" min="10" max="200" />
+            </label>
+            <label class="field">
+              <span class="field-label"><span data-i18n="label_heel_angle">Heel Lift Angle</span> <em>°</em></span>
+              <input type="number" id="b_heelAngle" value="15" min="-20" max="45" />
+            </label>
+          </div>
+          </div><!-- /set-body-inner B -->
+          </div><!-- /set-body B -->
+        </div><!-- /set-card B -->
+
+
+        <!-- CONTROLS -->
+        <div class="controls">
+          <button id="btnDraw" class="btn-primary" data-i18n="btn_update">Update Diagram</button>
+          <button id="btnReset" class="btn-secondary" data-i18n="btn_reset">Reset Defaults</button>
+        </div>
+
+        <!-- LEGEND -->
+        <div class="legend">
+          <div class="legend-title" data-i18n="legend_title">Legend</div>
+          <div class="legend-items">
+            <div class="legend-item"><span class="legend-dot dot-a"></span> <span data-i18n="set_a">Set A</span></div>
+            <div class="legend-item"><span class="legend-dot dot-b"></span> <span data-i18n="set_b">Set B</span></div>
+          </div>
+          <div class="legend-icons">
+            <div class="legend-row"><span class="legend-line solid"></span> <span data-i18n="legend_femur_tibia">Femur / Tibia</span></div>
+            <div class="legend-row"><span class="legend-line dashed"></span> <span data-i18n="legend_extension_ref">Extension ref</span></div>
+            <div class="legend-row"><span class="legend-line foot"></span> <span data-i18n="legend_foot">Foot</span></div>
+          </div>
+        </div>
+
+        <!-- WARNING -->
+        <div id="warningBox" class="warning-box hidden"></div>
+
+      </aside>
+
+      <!-- CANVAS AREA -->
+      <main class="canvas-area">
+        <canvas id="diagramCanvas"></canvas>
+        
+        <!-- SUMMARY PANEL -->
+        <div id="summaryPanel" class="summary-panel">
+          <div class="summary-row">
+            <span class="summary-label" data-i18n="ext_diff">Ext Difference</span>
+            <span id="diffExt" class="summary-value">0 mm</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label" data-i18n="height_diff">Height Difference</span>
+            <span id="diffHeight" class="summary-value">0 mm</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label" data-i18n="setback_diff">Setback Difference</span>
+            <span id="diffSetback" class="summary-value">0 mm</span>
+          </div>
+        </div>
+
+        <div class="canvas-hint" data-i18n="canvas_hint">Adjust inputs and click <strong>Update Diagram</strong> · Scroll to zoom · Drag to pan</div>
+      </main>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
