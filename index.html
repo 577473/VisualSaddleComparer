@@ -26,7 +26,7 @@
           </svg>
         </div>
         <div>
-          <h1 class="header-title" data-i18n="app_title">Saddle Position Comparer</h1>
+          <h1 class="header-title"><span data-i18n="app_title">Saddle Position Comparer</span><span class="author-info">by ig: @fi.gc</span></h1>
           <p class="header-sub" data-i18n="app_subtitle">Bike fit visualizer with skeletal leg simulation</p>
         </div>
       </div>
@@ -251,6 +251,18 @@
           <div class="summary-row">
             <span class="summary-label" data-i18n="setback_diff">Setback Difference</span>
             <span id="diffSetback" class="summary-value">0 mm</span>
+          </div>
+        </div>
+
+        <!-- ANIMATION CONTROLS -->
+        <div class="animation-panel">
+          <div class="mod-wheel-container">
+            <input type="range" id="modWheel" min="-100" max="100" value="0" class="mod-wheel">
+          </div>
+          <div class="clock-input-group">
+            <label for="clockPos" data-i18n="label_pedal_pos">Pedal Pos</label>
+            <input type="number" id="clockPos" min="1" max="12" step="1" value="5">
+            <button id="btnResetPedal" class="btn btn-secondary btn-sm" data-i18n="btn_reset_pedal">Reset</button>
           </div>
         </div>
 

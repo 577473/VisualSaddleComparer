@@ -58,6 +58,8 @@ const translations = {
     ext_diff: "Ext Difference",
     height_diff: "Height Difference",
     setback_diff: "Setback Difference",
+    label_pedal_pos: "Pedal Pos",
+    btn_reset_pedal: "Reset",
     tip_saddle_length: "The overall saddle length measured from the tip to the back",
     tip_ref_nose: "The distance from the tip of the saddle to where the saddle measures 80mm in width",
     tip_ischial_back: "The distance from the back of the saddle to where the ischial tuberosities rest, typically the part at which the saddle is widest.",
@@ -108,6 +110,8 @@ const translations = {
     ext_diff: "Diferencia Ext.",
     height_diff: "Diferencia Altura",
     setback_diff: "Diferencia Retroceso",
+    label_pedal_pos: "Pos. Pedal",
+    btn_reset_pedal: "Reiniciar",
     tip_saddle_length: "Longitud total del sillín medida desde la punta hasta la parte trasera",
     tip_ref_nose: "La distancia desde la punta del sillín hasta donde el sillín mide 80 mm de ancho",
     tip_ischial_back: "La distancia desde la parte trasera del sillín hasta donde descansan las tuberosidades isquiáticas, típicamente la parte más ancha.",
@@ -121,6 +125,20 @@ const translations = {
     tip_heel_angle: "Ángulo del talón medido desde el plano horizontal a la altura del pedal cuando está en la posición de las 5 en punto."
   }
 };
+
+let globalCrankAngleMath = -60 * (Math.PI / 180); // Default: 5 o'clock
+let lastAnimTime = 0;
+
+function getHeelMultiplier(clock) {
+  let c = clock;
+  if (c === 12) c = 0;
+  if (c >= 0 && c < 3) return 0.8 - 0.8 * (c / 3.0);
+  if (c >= 3 && c <= 5) return (c - 3) / 2.0;
+  if (c > 5 && c <= 6) return 1.0 + 0.2 * (c - 5);
+  if (c > 6 && c <= 9) return 1.2 - 0.7 * ((c - 6) / 3.0);
+  if (c > 9 && c < 12) return 0.5 + 0.3 * ((c - 9) / 3.0);
+  return 1.0;
+}
 
 let currentLang = 'en';
 
@@ -192,12 +210,8 @@ function computeGeometry(p) {
   // Bottom Bracket — world origin
   const bb = { x: 0, y: 0 };
 
-  // Crank at 5 o'clock (150° clockwise from 12 = 60° below forward horizontal)
-  // World (Y-up): 5-o'clock vector = (sin150°, -cos150°) = (0.5, 0.866) then Y negative for below
-  // Angle from positive-X axis, clockwise = -60° in standard math
-  const crankAngleMath = -60 * DEG;        // 5 o'clock below the forward-horizontal
-  const pedalX = bb.x + crank * Math.cos(crankAngleMath);
-  const pedalY = bb.y + crank * Math.sin(crankAngleMath);
+  const pedalX = bb.x + crank * Math.cos(globalCrankAngleMath);
+  const pedalY = bb.y + crank * Math.sin(globalCrankAngleMath);
   const pedal = { x: pedalX, y: pedalY };
 
   // Saddle reference point (80-mm width measurement point)
@@ -218,9 +232,13 @@ function computeGeometry(p) {
   // Ball of foot = pedal axle location
   const ball = { x: pedal.x, y: pedal.y };
 
-  // Ankle: heel raised at heelAngle degrees above horizontal from ball
-  //   ankle is behind and above the ball
-  const heelRad = heelAngle * DEG;
+  // Ankle: heel raised based on dynamic heel lift angle
+  let clockPos = 3 - (globalCrankAngleMath / DEG) / 30;
+  clockPos = ((clockPos % 12) + 12) % 12;
+  if (clockPos === 0) clockPos = 12;
+  const mult = getHeelMultiplier(clockPos);
+  const adjustedHeelAngle = heelAngle * mult;
+  const heelRad = adjustedHeelAngle * DEG;
   const ballToAnkle = footLength * 0.40; // anatomical ratio: ~40% of foot length
   const ankle = {
     x: ball.x - ballToAnkle * Math.cos(heelRad),
@@ -798,6 +816,33 @@ function initTooltips() {
 }
 
 // ─── Initial render ───────────────────────────────────────────────────────────
+
+function updateAnimation(timestamp) {
+  if (!lastAnimTime) lastAnimTime = timestamp;
+  const dt = timestamp - lastAnimTime;
+  lastAnimTime = timestamp;
+
+  const modWheel = document.getElementById('modWheel');
+  const wheelVal = parseFloat(modWheel.value);
+
+  if (wheelVal !== 0) {
+    const maxSpeedRad = -0.45 * DEG; 
+    const speed = (wheelVal / 100) * maxSpeedRad;
+    globalCrankAngleMath += speed * dt;
+    
+    globalCrankAngleMath = globalCrankAngleMath % (2 * Math.PI);
+    
+    let clock = 3 - (globalCrankAngleMath / DEG) / 30;
+    clock = ((clock % 12) + 12) % 12;
+    if (clock === 0) clock = 12;
+    document.getElementById('clockPos').value = Math.round(clock);
+
+    render(true);
+  }
+  
+  requestAnimationFrame(updateAnimation);
+}
+
 window.addEventListener('load', () => {
   // Detect browser language
   const browserLang = navigator.language || navigator.userLanguage;
@@ -809,5 +854,31 @@ window.addEventListener('load', () => {
   
   updateLanguage(defaultLang);
   initTooltips();
+  
+  // Setup Animation Event Listeners
+  const resetModWheel = () => {
+    document.getElementById('modWheel').value = 0;
+  };
+  const modWheelEl = document.getElementById('modWheel');
+  modWheelEl.addEventListener('mouseup', resetModWheel);
+  modWheelEl.addEventListener('mouseleave', resetModWheel);
+  modWheelEl.addEventListener('touchend', resetModWheel);
+
+  const clockPosEl = document.getElementById('clockPos');
+  clockPosEl.addEventListener('input', (e) => {
+    let val = parseInt(e.target.value, 10);
+    if (isNaN(val) || val < 1 || val > 12) return;
+    globalCrankAngleMath = -(val - 3) * 30 * DEG;
+    render(true);
+  });
+
+  document.getElementById('btnResetPedal').addEventListener('click', () => {
+    globalCrankAngleMath = -60 * DEG; // 5 o'clock
+    clockPosEl.value = '5';
+    resetModWheel();
+    render(true);
+  });
+
+  requestAnimationFrame(updateAnimation);
   render(false);
 });
