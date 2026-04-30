@@ -57,7 +57,18 @@ const translations = {
     canvas_bb: "BB",
     ext_diff: "Ext Difference",
     height_diff: "Height Difference",
-    setback_diff: "Setback Difference"
+    setback_diff: "Setback Difference",
+    tip_saddle_length: "The overall saddle length measured from the tip to the back",
+    tip_ref_nose: "The distance from the tip of the saddle to where the saddle measures 80mm in width",
+    tip_ischial_back: "The distance from the back of the saddle to where the ischial tuberosities rest, typically the part at which the saddle is widest.",
+    tip_extension: "Distance from center of bottom bracket to the top of the saddle at the reference point where the saddle measures 80mm wide.",
+    tip_setback: "The horizontal distance between the vertical planes of the bottom bracket and the reference point of the saddle where it measures 80mm wide",
+    tip_femur: "Femur bone length from the hip to the lateral epicondyle of the femur (the tuberosity felt to the outer side of the knee at the patella height)",
+    tip_tibia: "Tibia bone length measured from the end point of the femur measurement to the outer ankle bone.",
+    tip_crank: "Length of the crank (refer to product specification or measure from pedal spindle to center of bottom bracket)",
+    tip_foot_length: "Length of your foot, from the tip to the back of your ankle.",
+    tip_contact_tip: "Distance from the tip of your foot to the point where it connects to the pedal spindle",
+    tip_heel_angle: "Angle of your heel measured from the horizontal plane at the pedal spindle height when the pedal is at the 5 o'clock position."
   },
   es: {
     app_title: "Comparador de Sillín",
@@ -96,7 +107,18 @@ const translations = {
     canvas_bb: "BB",
     ext_diff: "Diferencia Ext.",
     height_diff: "Diferencia Altura",
-    setback_diff: "Diferencia Retroceso"
+    setback_diff: "Diferencia Retroceso",
+    tip_saddle_length: "Longitud total del sillín medida desde la punta hasta la parte trasera",
+    tip_ref_nose: "La distancia desde la punta del sillín hasta donde el sillín mide 80 mm de ancho",
+    tip_ischial_back: "La distancia desde la parte trasera del sillín hasta donde descansan las tuberosidades isquiáticas, típicamente la parte más ancha.",
+    tip_extension: "Distancia desde el centro del eje de pedalier hasta la parte superior del sillín en el punto de referencia de 80 mm de ancho.",
+    tip_setback: "La distancia horizontal entre los planos verticales del eje de pedalier y el punto de referencia del sillín de 80 mm de ancho",
+    tip_femur: "Longitud del fémur desde la cadera hasta el epicóndilo lateral del fémur (el bulto al lado exterior de la rodilla)",
+    tip_tibia: "Longitud de la tibia medida desde el punto final del fémur hasta el hueso exterior del tobillo.",
+    tip_crank: "Longitud de la biela (ver especificaciones o medir desde el eje del pedal hasta el centro del eje de pedalier)",
+    tip_foot_length: "Longitud del pie, desde la punta hasta la parte posterior del tobillo.",
+    tip_contact_tip: "Distancia desde la punta del pie hasta el punto de conexión con el eje del pedal",
+    tip_heel_angle: "Ángulo del talón medido desde el plano horizontal a la altura del pedal cuando está en la posición de las 5 en punto."
   }
 };
 
@@ -732,6 +754,49 @@ function setupVisToggle(btnId, cardId, key) {
 setupVisToggle('visToggleA', 'setCardA', 'a');
 setupVisToggle('visToggleB', 'setCardB', 'b');
 
+// ─── Tooltip logic ────────────────────────────────────────────────────────────
+const tooltipIllustrations = {
+  saddle_length: `<svg viewBox="0 0 100 50"><path d="M 20 15 C 40 15, 60 22, 90 23 A 4 2 0 0 1 90 27 C 60 28, 40 35, 20 35 C 10 35, 10 15, 20 15 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 12 42 L 92 42 M 12 39 L 12 45 M 92 39 L 92 45" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  ref_nose: `<svg viewBox="0 0 100 50"><path d="M 20 15 C 40 15, 60 22, 90 23 A 4 2 0 0 1 90 27 C 60 28, 40 35, 20 35 C 10 35, 10 15, 20 15 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 60 22 L 60 32" stroke="#7986a3" stroke-width="1" stroke-dasharray="2 2"/><path d="M 60 42 L 92 42 M 60 39 L 60 45 M 92 39 L 92 45" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  ischial_back: `<svg viewBox="0 0 100 50"><path d="M 20 15 C 40 15, 60 22, 90 23 A 4 2 0 0 1 90 27 C 60 28, 40 35, 20 35 C 10 35, 10 15, 20 15 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><circle cx="28" cy="20" r="2.5" fill="#4FC3F7"/><circle cx="28" cy="30" r="2.5" fill="#4FC3F7"/><path d="M 12 42 L 28 42 M 12 39 L 12 45 M 28 39 L 28 45" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  extension: `<svg viewBox="0 0 100 100"><circle cx="70" cy="80" r="4" stroke="#7986a3" fill="none" stroke-width="1.5"/><path d="M 15 20 C 25 20, 45 22, 65 24 C 65 26, 55 28, 45 28 C 30 28, 20 32, 15 28 C 10 24, 10 20, 15 20 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 70 80 L 45 22" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="45" cy="22" r="2.5" fill="#4FC3F7"/></svg>`,
+  setback: `<svg viewBox="0 0 100 100"><circle cx="70" cy="80" r="4" stroke="#7986a3" fill="none" stroke-width="1.5"/><path d="M 15 20 C 25 20, 45 22, 65 24 C 65 26, 55 28, 45 28 C 30 28, 20 32, 15 28 C 10 24, 10 20, 15 20 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 70 80 L 70 10 M 45 30 L 45 10" stroke="#7986a3" stroke-width="1" stroke-dasharray="2 2"/><path d="M 70 15 L 45 15 M 70 12 L 70 18 M 45 12 L 45 18" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  femur: `<svg viewBox="0 0 60 100"><path d="M 40 5 C 50 5, 55 15, 50 20" fill="none" stroke="#4a5568" stroke-width="1"/><path d="M 25 20 C 25 10, 45 10, 45 20 C 45 25, 35 30, 35 40 L 35 70 C 35 80, 45 85, 45 90 C 45 100, 15 100, 15 90 C 15 85, 25 80, 25 70 L 25 40 C 25 30, 15 25, 25 20 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><circle cx="35" cy="15" r="2.5" fill="#4FC3F7"/><circle cx="15" cy="90" r="2.5" fill="#4FC3F7"/><path d="M 35 15 L 15 90" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="2 2"/></svg>`,
+  tibia: `<svg viewBox="0 0 60 100"><path d="M 15 10 C 15 20, 45 20, 45 10" fill="none" stroke="#4a5568" stroke-width="1"/><path d="M 15 20 C 15 10, 45 10, 45 20 C 45 30, 35 35, 35 45 L 35 75 C 35 85, 40 90, 40 95 C 40 105, 10 105, 10 95 C 10 90, 25 85, 25 75 L 25 45 C 25 35, 15 30, 15 20 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><circle cx="15" cy="20" r="2.5" fill="#4FC3F7"/><circle cx="10" cy="95" r="2.5" fill="#4FC3F7"/><path d="M 15 20 L 10 95" stroke="#4FC3F7" stroke-width="1.5" stroke-dasharray="2 2"/></svg>`,
+  crank: `<svg viewBox="0 0 100 60"><circle cx="30" cy="25" r="8" stroke="#7986a3" fill="none" stroke-width="1.5"/><path d="M 30 25 L 70 25" stroke="#7986a3" stroke-width="3" stroke-linecap="round"/><circle cx="70" cy="25" r="3" fill="#4FC3F7"/><circle cx="30" cy="25" r="2" fill="#4FC3F7"/><path d="M 30 40 L 70 40 M 30 37 L 30 43 M 70 37 L 70 43" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  foot_length: `<svg viewBox="0 0 100 60"><path d="M 30 10 L 30 30 C 20 35, 15 45, 25 50 L 70 50 C 85 50, 90 45, 85 40 C 75 35, 55 30, 45 25 L 45 10 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 18 55 L 88 55 M 18 52 L 18 58 M 88 52 L 88 58" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  contact_tip: `<svg viewBox="0 0 100 60"><path d="M 30 10 L 30 30 C 20 35, 15 45, 25 50 L 70 50 C 85 50, 90 45, 85 40 C 75 35, 55 30, 45 25 L 45 10 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><circle cx="60" cy="50" r="2.5" fill="#4FC3F7"/><path d="M 60 55 L 88 55 M 60 52 L 60 58 M 88 52 L 88 58" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+  heel_angle: `<svg viewBox="0 0 100 80"><path d="M 10 60 L 90 60" stroke="#7986a3" stroke-dasharray="2 2" stroke-width="1"/><g transform="rotate(20 60 60)"><path d="M 30 20 L 30 40 C 20 45, 15 55, 25 60 L 70 60 C 85 60, 90 55, 85 50 C 75 45, 55 40, 45 35 L 45 20 Z" fill="none" stroke="#7986a3" stroke-width="1.5"/><path d="M 60 60 L 25 60" stroke="#4FC3F7" stroke-width="1.5"/></g><circle cx="60" cy="60" r="2.5" fill="#4FC3F7"/><path d="M 40 60 A 20 20 0 0 1 41.2 53.1" fill="none" stroke="#4FC3F7" stroke-width="1.5"/></svg>`,
+};
+
+function initTooltips() {
+  const tooltipEl = document.getElementById('tooltip');
+  const tooltipIllustration = document.getElementById('tooltipIllustration');
+  const tooltipText = document.getElementById('tooltipText');
+
+  document.querySelectorAll('[data-tooltip]').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      const key = el.getAttribute('data-tooltip');
+      const text = t(`tip_${key}`);
+      const illustration = tooltipIllustrations[key] || '';
+
+      tooltipText.innerText = text;
+      tooltipIllustration.innerHTML = illustration;
+      tooltipEl.classList.remove('hidden');
+      tooltipEl.style.display = 'flex';
+
+      const rect = el.getBoundingClientRect();
+      tooltipEl.style.left = (rect.left + rect.width / 2 - 120) + 'px';
+      tooltipEl.style.top = (rect.top - tooltipEl.offsetHeight - 10) + 'px';
+    });
+
+    el.addEventListener('mouseleave', () => {
+      tooltipEl.classList.add('hidden');
+      tooltipEl.style.display = 'none';
+    });
+  });
+}
+
 // ─── Initial render ───────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   // Detect browser language
@@ -743,5 +808,6 @@ window.addEventListener('load', () => {
   langSelector.addEventListener('change', (e) => updateLanguage(e.target.value));
   
   updateLanguage(defaultLang);
+  initTooltips();
   render(false);
 });
