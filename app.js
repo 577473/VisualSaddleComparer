@@ -787,6 +787,16 @@ if (btnMobileSetA) btnMobileSetA.addEventListener('click', () => openMobilePanel
 if (btnMobileSetB) btnMobileSetB.addEventListener('click', () => openMobilePanel('B'));
 if (btnMobileClose) btnMobileClose.addEventListener('click', () => {
   document.body.classList.remove('mobile-panel-open');
+  window.scrollTo(0, 0);
+});
+
+// Force scroll reset when inputs lose focus to prevent mobile keyboard viewport bugs
+document.querySelectorAll('.input-panel input').forEach(inp => {
+  inp.addEventListener('blur', () => {
+    if (window.innerWidth <= 768) {
+      window.scrollTo(0, 0);
+    }
+  });
 });
 
 // ─── Visibility toggles ───────────────────────────────────────────────────────
